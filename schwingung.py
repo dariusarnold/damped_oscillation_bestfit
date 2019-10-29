@@ -114,17 +114,17 @@ def plot_seismo_and_best_fit_curve(t: np.ndarray, x: np.ndarray,
     ax.plot(t, damped_oscillator(t, *params), label="Best fit curve")
     ax.plot(t, x, label="Seismogram")
     ax.legend()
-    ax.set_title(fr"damped oscillation $x(t) = A * exp(-\delta t) * sin(\phi + \omega * t)$")
+    ax.set_title(fr"Damped oscillation $x(t) = A * exp(-\delta t) * sin(\phi + \omega * t)$")
     param_string = "\n".join((fr"$A = ${amplitude:.2e}",
                               fr"$\delta = ${dampening:.2f}",
                               fr"$\phi = ${phase:.2f}",
                               fr"$\omega = ${frequency:.2f}"))
-    text = AnchoredText(param_string, loc="upper left")
+    text = AnchoredText(param_string, loc="lower right")
     ax.add_artist(text)
     plt.show()
 
 
-DampedOscillationParams = collections.namedtuple("dampedOscillationParams",
+DampedOscillationParams = collections.namedtuple("DampedOscillationParams",
                                                    "amplitude dampening phase frequency")
 
 
