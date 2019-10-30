@@ -173,3 +173,4 @@ if __name__ == '__main__':
     x = x[start_index:stop_index]
     params = fit_curve_to_data(t, x)
     plot_seismo_and_best_fit_curve(t, x, params)
+    print(params)
