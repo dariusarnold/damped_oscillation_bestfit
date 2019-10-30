@@ -10,7 +10,7 @@ Pass path to SEG-2 ASCII file as first command line argument.
 
 ## Requirements
 
- - Python 3.6 or greater
+ - Python 3.5 or greater
  - numpy
  - scipy
  - matplotlib

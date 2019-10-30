@@ -10,23 +10,34 @@ Pass seismogram (sg2 file) as first parameter.
 
 import sys
 
-MIN_PYTHON_VERSION = (3, 6)
+MIN_PYTHON_VERSION = (3, 5)
 if sys.version_info < MIN_PYTHON_VERSION:
-    sys.exit("This script needs python >=3.6")
+    sys.exit("This script needs python >=3.5")
 
 import numpy as np
 import scipy.optimize as sp
 import matplotlib.pyplot as plt
 from pathlib import Path
 import collections
-from typing import Tuple, Optional
+import enum
+from typing import Tuple
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.artist import Artist, get
-import matplotlib.backend_bases
+
+# workaround for old matplotlib version (< 3.1) not having MouseButton enum
+try:
+    from matplotlib.backend_bases import MouseButton
+except ImportError:
+    class MouseButton(enum.IntEnum):
+        LEFT = 1
+        MIDDLE = 2
+        RIGHT = 3
+        BACK = 8
+        FORWARD = 9
 
 
 def damped_oscillator(t: np.ndarray, A: float, delta: float, phi: float,
-                        omega: float) -> np.ndarray:
+                      omega: float) -> np.ndarray:
     """
     Get amplitude of damped oscillator.
     :param A: amplitude
@@ -74,7 +85,7 @@ class DataSelectionPlot:
         return get(line, "xdata")[0]
 
     def _onclick(self, event) -> None:
-        if event.button == matplotlib.backend_bases.MouseButton.RIGHT:
+        if event.button == MouseButton.RIGHT:
             self.add_new_point(event.xdata)
 
     def add_new_point(self, x_coordinate: float) -> None:
@@ -114,18 +125,18 @@ def plot_seismo_and_best_fit_curve(t: np.ndarray, x: np.ndarray,
     ax.plot(t, damped_oscillator(t, *params), label="Best fit curve")
     ax.plot(t, x, label="Seismogram")
     ax.legend()
-    ax.set_title(fr"Damped oscillation $x(t) = A * exp(-\delta t) * sin(\phi + \omega * t)$")
-    param_string = "\n".join((fr"$A = ${amplitude:.2e}",
-                              fr"$\delta = ${dampening:.2f}",
-                              fr"$\phi = ${phase:.2f}",
-                              fr"$\omega = ${frequency:.2f}"))
+    ax.set_title(r"Damped oscillation $x(t) = A * exp(-\delta t) * sin(\phi + \omega * t)$")
+    param_string = "\n".join((r"$A = ${amplitude:.2e}".format(amplitude=amplitude),
+                              r"$\delta = ${dampening:.2f}".format(dampening=dampening),
+                              r"$\phi = ${phase:.2f}".format(phase=phase),
+                              r"$\omega = ${frequency:.2f}".format(frequency=frequency)))
     text = AnchoredText(param_string, loc="lower right")
     ax.add_artist(text)
     plt.show()
 
 
 DampedOscillationParams = collections.namedtuple("DampedOscillationParams",
-                                                   "amplitude dampening phase frequency")
+                                                 "amplitude dampening phase frequency")
 
 
 def fit_curve_to_data(t: np.ndarray, x: np.ndarray) -> DampedOscillationParams:
@@ -140,7 +151,7 @@ def load_data(path: Path) -> np.ndarray:
     try:
         return np.genfromtxt(path, skip_header=1, skip_footer=1, unpack=True)
     except Exception as e:
-        sys.exit(f"Couldn't parse file {path}. Error: {e}")
+        sys.exit("Couldn't parse file {path}. Error: {e}".format(path=path, e=e))
 
 
 def handle_arguments() -> Path:
@@ -148,9 +159,9 @@ def handle_arguments() -> Path:
         sys.exit("Specify path to sg2 file as command line argument.")
     path = Path(sys.argv[1])
     if not path.exists():
-        sys.exit(f"Path {path} does not exist.")
+        sys.exit("Path {path} does not exist.".format(path=path))
     if not path.is_file():
-        sys.exit(f"Given path {path} is not a file.")
+        sys.exit("Given path {path} is not a file.".format(path=path))
     return path
 
 
