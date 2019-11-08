@@ -115,7 +115,11 @@ def select_data_from_recording(t: np.ndarray, x: np.ndarray) -> Tuple[float, flo
     # use deque of size 2 as a ringbuffer to store x position of last two clicks
     # in data coordinates
     plot = DataSelectionPlot(t, x)
-    return plot.get_points()
+    try:
+        return plot.get_points()
+    except IndexError:
+        # first plot is closed by user without selecting enough points
+        sys.exit("Select at least two points by rightclicking.")
 
 
 def plot_seismo_and_best_fit_curve(t: np.ndarray, x: np.ndarray,
