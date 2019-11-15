@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import collections
 import enum
+import obspy
 from typing import Tuple
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.artist import Artist, get
@@ -148,6 +149,10 @@ def fit_curve_to_data(t: np.ndarray, x: np.ndarray) -> DampedOscillationParams:
 
 
 def load_data(path: Path) -> np.ndarray:
+    if path.suffix == ".mseed":
+        data = obspy.read(path.as_posix())
+        trace_index = 0
+        return data[trace_index].times(type="relative"), data[trace_index].data
     try:
         return np.genfromtxt(path, skip_header=1, skip_footer=1, unpack=True)
     except Exception as e:
